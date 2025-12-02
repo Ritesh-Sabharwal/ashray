@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ashray - Your Mental Health Companion</title>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-light: #818cf8;
+      --secondary: #8b5cf6;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: rgba(100, 116, 139, 0.1);
+      --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-soft: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Animated Background */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #fae8ff 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 20s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* Floating particles */
+    .particle {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      background: rgba(139, 92, 246, 0.3);
+      border-radius: 50%;
+      animation: float 25s infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+    }
+
+    /* Header */
+    header {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 20px var(--shadow);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 3px solid var(--secondary);
+      object-fit: cover;
+      animation: pulse 2s ease-in-out infinite;
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
+      50% { transform: scale(1.05); box-shadow: 0 4px 20px rgba(139, 92, 246, 0.5); }
+    }
+
+    .logo-section h1 {
+      font-size: 1.8rem;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+
+    .btn-login {
+      padding: 0.75rem 2rem;
+      background: var(--gradient);
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+    }
+
+    /* Hero Section */
+    .hero {
+      max-width: 1200px;
+      margin: 4rem auto;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .hero h2 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeInUp 1s ease;
+      font-weight: 700;
+    }
+
+    .hero p {
+      font-size: 1.3rem;
+      color: var(--text-muted);
+      max-width: 700px;
+      margin: 0 auto 2rem;
+      animation: fadeInUp 1s ease 0.2s both;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Info Cards */
+    .info-section {
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .info-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      transition: all 0.3s ease;
+      animation: fadeInUp 1s ease;
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+
+    .info-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--primary);
+      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.2);
+    }
+
+    .info-card h3 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .info-card p {
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    /* Features Section */
+    .features-title {
+      text-align: center;
+      font-size: 2.5rem;
+      margin: 4rem 0 2rem;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+
+    .features-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      border-color: var(--secondary);
+      box-shadow: 0 15px 50px rgba(139, 92, 246, 0.3);
+    }
+
+    .feature-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 1.5rem;
+      border-radius: 20px;
+      background: var(--gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+    }
+
+    .feature-card:hover .feature-icon {
+      transform: rotateY(360deg);
+      box-shadow: 0 12px 35px rgba(139, 92, 246, 0.5);
+    }
+
+    .feature-card h3 {
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .feature-card a {
+      display: inline-block;
+      padding: 0.75rem 2rem;
+      background: var(--gradient);
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    }
+
+    .feature-card a:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5);
+    }
+
+    /* Helplines Section */
+    .helplines {
+      max-width: 900px;
+      margin: 4rem auto;
+      padding: 3rem;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 4px 30px var(--shadow);
+    }
+
+    .helplines h2 {
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 2rem;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .helpline-item {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e0e7ff 100%);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border-radius: 15px;
+      border-left: 4px solid var(--primary);
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 10px var(--shadow);
+    }
+
+    .helpline-item:hover {
+      transform: translateX(10px);
+      border-left-color: var(--secondary);
+      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.2);
+    }
+
+    .helpline-item strong {
+      color: var(--primary);
+      font-size: 1.1rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .helpline-item p {
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2.5rem 2rem;
+      background: var(--bg-card);
+      border-top: 2px solid var(--border);
+      margin-top: 4rem;
+      box-shadow: 0 -4px 20px var(--shadow);
+    }
+
+    footer p {
+      color: var(--text-muted);
+      margin: 0.5rem 0;
+    }
+
+    .heart {
+      color: #ef4444;
+      animation: heartbeat 1.5s ease infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.2); }
+      50% { transform: scale(1); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h2 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1.1rem;
+      }
+
+      .header-content {
+        justify-content: center;
+        text-align: center;
+      }
+
+      .logo-section h1 {
+        font-size: 1.4rem;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .info-section {
+        grid-template-columns: 1fr;
+      }
+    }
+    /* User info display */
+    .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    }
+
+    .user-name {
+    color: var(--text);
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 50px;
+    border: 2px solid var(--border);
+    }
+
+    .btn-logout {
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    }
+
+    .btn-logout:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(239, 68, 68, 0.5);
+    }
+    
+  </style>
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="bg-animation"></div>
+  
+  <!-- Floating Particles -->
+  <script>
+    for (let i = 0; i < 15; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.animationDelay = Math.random() * 25 + 's';
+      particle.style.animationDuration = (Math.random() * 10 + 20) + 's';
+      document.body.appendChild(particle);
+    }
+  </script>
+
+  <!-- Header -->
+  <header>
+    <div class="header-content">
+        <div class="logo-section">
+            <img src="/static/images/back.png" alt="Ashray Logo" class="logo-circle">
+            <h1>Ashray - Your Safe Space</h1>
+        </div>
+        <!-- Auth buttons - will be updated by JavaScript -->
+        <div id="authButtons">
+            <a href="/login" class="btn-login" id="loginBtn">Login / Signup</a>
+        </div>
+    </div>
+  </header>
+  <!-- Hero Section -->
+  <section class="hero">
+    <h2>Welcome to Ashray 💙</h2>
+    <p>Your mental health companion. A safe space to share, heal, and grow. You're not alone, and we're here for you... always.</p>
+  </section>
+
+  <!-- Info Cards -->
+  <section class="info-section">
+    <div class="info-card">
+      <h3>What is Mental Health?</h3>
+      <p>Mental health means feeling balanced, coping with life's ups and downs, and using your abilities to live well. It's a key part of overall health, helping you grow, learn, and connect.</p>
+    </div>
+
+    <div class="info-card">
+      <h3>Why It Matters</h3>
+      <p>Good mental health helps you think clearly, work productively, and build strong relationships. Without it, stress and struggles can take over. That's why caring for your mind matters.</p>
+    </div>
+
+    <div class="info-card">
+      <h3>We're With You</h3>
+      <p>Your care is our duty. We're committed to providing support, resources, and a judgment-free space. Prioritize your peace today for a brighter tomorrow.</p>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <h2 class="features-title">How Ashray Helps You</h2>
+  <section class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3>Chat with Leo</h3>
+      <p>Talk to our AI companion anytime. Leo listens without judgment and provides emotional support 24/7.</p>
+      <a href="/Leo">Start Chatting</a>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">📔</div>
+      <h3>Daily Journal</h3>
+      <p>Write your thoughts, track your emotions, and gain insights into your mental health patterns.</p>
+      <a href="/dairy">Start Writing</a>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">✉️</div>
+      <h3>Future Letters</h3>
+      <p>Write letters to your future self. Build hope, set goals, and track your personal growth journey.</p>
+      <a href="/letters">Write a Letter</a>
+    </div>
+  </section>
+
+  <!-- Helplines -->
+  <section class="helplines">
+    <h2>24/7 Mental Health Helplines (India)</h2>
+    
+    <div class="helpline-item">
+      <strong>1. KIRAN</strong>
+      <p>☎️ 1800-599-0019 — 24×7 national helpline for mental health support.</p>
+    </div>
+
+    <div class="helpline-item">
+      <strong>2. Tele-MANAS</strong>
+      <p>☎️ 14416 / 1800-891-4416 — Government helpline for stress & anxiety support.</p>
+    </div>
+
+    <div class="helpline-item">
+      <strong>3. Namah</strong>
+      <p>☎️ 84477-43665 — Free, anonymous, 24/7 listening helpline. 🌸</p>
+    </div>
+
+    <div class="helpline-item">
+      <strong>4. Vandrevala Foundation</strong>
+      <p>☎️ 9999666555 — Mental health support and crisis intervention.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p><span class="heart">💚</span> You are stronger than you think.</p>
+    <p>© 2025 Ashray | Built with <span class="heart">❤️</span> for Mental Wellness</p>
+    <p>All Rights Reserved</p>
+  </footer>
+  <!-- Add this script BEFORE closing </body> tag in index.html -->
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { 
+        getAuth, 
+        onAuthStateChanged,
+        signOut
+    } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+    // Firebase Configuration - REPLACE WITH YOUR CONFIG
+    const firebaseConfig = {
+      apiKey: "AIzaSyBEUwb0GtxLa8P-XnbBUiQrBSWnkTh4zl0",
+      authDomain: "ashray-f0fe1.firebaseapp.com",
+      databaseURL: "https://ashray-f0fe1-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "ashray-f0fe1",
+      storageBucket: "ashray-f0fe1.firebasestorage.app",
+      messagingSenderId: "206959431014",
+      appId: "1:206959431014:web:1358d4921ea354135b0ca7",
+      measurementId: "G-GHRNRVZ9N3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Update UI based on auth state
+    onAuthStateChanged(auth, (user) => {
+        const authButtons = document.getElementById('authButtons');
+        
+        if (user) {
+            // User is logged in - show user info and logout
+            const displayName = user.displayName || user.email.split('@')[0];
+            authButtons.innerHTML = `
+                <div class="user-info">
+                    <span class="user-name">👋 ${displayName}</span>
+                    <button class="btn-logout" onclick="handleLogout()">Logout</button>
+                </div>
+            `;
+        } else {
+            // User is logged out - show login button
+            authButtons.innerHTML = `
+                <a href="/login" class="btn-login">Login / Signup</a>
+            `;
+        }
+    });
+
+    // Logout function
+    window.handleLogout = async function() {
+        if (confirm('Are you sure you want to logout?')) {
+            try {
+                await signOut(auth);
+                alert('✅ Logged out successfully!');
+                window.location.reload();
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('❌ Failed to logout. Please try again.');
+            }
+        }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Letters - Ashray</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: rgba(100, 116, 139, 0.1);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #fae8ff 100%);
+            background-attachment: fixed;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 2px solid var(--border);
+            box-shadow: 0 2px 20px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover { color: var(--primary); background: var(--bg); }
+
+        main {
+            flex: 1;
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            width: 100%;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header h2 {
+            font-size: 2rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        #authCheck {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        .letter-form {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            animation: fadeInUp 0.6s ease;
+            display: none;
+        }
+
+        .letter-form.show { display: block; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-group input[type="date"],
+        .form-group textarea {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group textarea {
+            min-height: 180px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn-seal {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-seal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5);
+        }
+
+        .btn-seal:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .letters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .letters-count {
+            background: var(--gradient);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        #lettersList {
+            display: none;
+            gap: 1.5rem;
+            grid-template-columns: 1fr;
+        }
+
+        #lettersList.show { display: grid; }
+
+        .letter-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .letter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px var(--shadow);
+            border-color: var(--primary);
+        }
+
+        .letter-card.sealed::before {
+            content: 'Locked';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            opacity: 0.3;
+        }
+
+        .letter-card.unlocked { border-color: var(--success); }
+        .letter-card.unlocked::before { content: 'Unlocked'; opacity: 0.5; }
+
+        .letter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 1rem;
+        }
+
+        .sealed-date { font-size: 0.85rem; color: var(--text-muted); }
+        .open-date { font-weight: 700; color: var(--primary); font-size: 1.1rem; }
+
+        .letter-status {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .letter-status.locked { background: var(--warning); color: white; }
+        .letter-status.unlocked { background: var(--success); color: white; }
+
+        .letter-content {
+            color: var(--text-muted);
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 1rem 0;
+        }
+
+        .locked-message {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 12px;
+            margin: 1rem 0;
+        }
+
+        .locked-message .emoji { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+
+        .btn-delete {
+            padding: 0.5rem 1rem;
+            background: var(--error);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--bg-card);
+            border: 2px dashed var(--border);
+            border-radius: 20px;
+            color: var(--text-muted);
+            display: none;
+        }
+
+        .empty-state.show { display: block; }
+        .empty-state .emoji { font-size: 4rem; margin-bottom: 1rem; display: block; }
+
+        .loading { text-align: center; padding: 3rem; color: var(--text-muted); }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-top: 2px solid var(--border);
+            color: var(--text-muted);
+            margin-top: auto;
+        }
+
+        .user-name {
+            color: var(--primary);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 50px;
+            border: 2px solid var(--border);
+        }
+
+        .btn-logout {
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(239, 68, 68, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .letters-header, .letter-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Future Letters</h1>
+            <nav class="nav-links">
+                <span id="userName" class="user-name" style="display: none;"></span>
+                <a href="/">🏡 Home</a>
+                <a href="/Leo">💬 Chat</a>
+                <a href="/dairy">📔 Journal</a>
+                <a href="#" id="logoutBtn" class="btn-logout" style="display: none;" onclick="logout()">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="page-header">
+            <h2>Letters to Your Future Self</h2>
+            <p>Write messages of hope and watch yourself grow.</p>
+        </div>
+
+        <div id="authCheck">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading your letters...</p>
+            </div>
+        </div>
+
+        <div class="letter-form" id="letterForm">
+            <form id="sealForm">
+                <div class="form-group">
+                    <label for="openDate">Date to Open</label>
+                    <input type="date" id="openDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="letterText">Your Message</label>
+                    <textarea id="letterText" placeholder="Dear Future Me,
+
+Write a letter to yourself... What are your hopes? What do you want to remember? What goals do you want to achieve?
+
+This letter will be locked until the date you choose." required maxlength="5000"></textarea>
+                </div>
+
+                <button type="submit" class="btn-seal" id="sealBtn">Seal Letter</button>
+            </form>
+        </div>
+
+        <div id="lettersSection" style="display: none;">
+            <div class="letters-header">
+                <h3>Sealed Letters</h3>
+                <span class="letters-count" id="lettersCount">0 letters</span>
+            </div>
+
+            <div class="empty-state" id="emptyState">
+                <span class="emoji">No letters yet</span>
+                <h3>No letters yet</h3>
+                <p>Write your first letter to your future self above!</p>
+            </div>
+
+            <div id="lettersList"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Your future self will thank you</p>
+        <p>© 2025 Ashray - Journey of Self-Discovery</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getDatabase, ref, push, set, get, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEUwb0GtxLa8P-XnbBUiQrBSWnkTh4zl0",
+            authDomain: "ashray-f0fe1.firebaseapp.com",
+            databaseURL: "https://ashray-f0fe1-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "ashray-f0fe1",
+            storageBucket: "ashray-f0fe1.firebasestorage.app",
+            messagingSenderId: "206959431014",
+            appId: "1:206959431014:web:1358d4921ea354135b0ca7",
+            measurementId: "G-GHRNRVZ9N3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let currentUser = null;
+
+        const authCheck = document.getElementById('authCheck');
+        const letterForm = document.getElementById('letterForm');
+        const lettersSection = document.getElementById('lettersSection');
+        const userNameElement = document.getElementById('userName');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const openDateInput = document.getElementById('openDate');
+
+        // Set minimum date to tomorrow
+        function setMinDate() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const dateStr = tomorrow.toISOString().split('T')[0];
+            if (openDateInput) {
+                openDateInput.min = dateStr;
+                openDateInput.value = dateStr;
+            }
+        }
+
+        // Save letter
+        document.getElementById('sealForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return alert('Please login first!');
+
+            const openDate = openDateInput.value;
+            const text = document.getElementById('letterText').value.trim();
+            const sealBtn = document.getElementById('sealBtn');
+            const today = new Date().toISOString().split('T')[0];
+
+            if (!text) return alert('Please write a message!');
+            if (new Date(openDate) <= new Date(today)) return alert('Please select a future date!');
+
+            sealBtn.disabled = true;
+            sealBtn.textContent = 'Sealing...';
+
+            try {
+                const lettersRef = ref(db, 'future_letters/' + currentUser.uid);
+                const newLetterRef = push(lettersRef);
+                await set(newLetterRef, {
+                    openDate,
+                    content: text,
+                    sealedDate: today,
+                    createdAt: Date.now()
+                });
+
+                document.getElementById('letterText').value = '';
+                setMinDate();
+                alert(`Letter sealed! Opens on ${formatDate(openDate)}`);
+                loadLetters();
+            } catch (error) {
+                console.error(error);
+                alert('Failed to seal letter.');
+            } finally {
+                sealBtn.disabled = false;
+                sealBtn.textContent = 'Seal Letter';
+            }
+        });
+
+        async function loadLetters() {
+            if (!currentUser) return;
+
+            const lettersList = document.getElementById('lettersList');
+            const emptyState = document.getElementById('emptyState');
+            const lettersCount = document.getElementById('lettersCount');
+
+            lettersList.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading letters...</p></div>';
+            lettersList.classList.add('show');
+
+            try {
+                const snapshot = await get(ref(db, 'future_letters/' + currentUser.uid));
+                lettersList.innerHTML = '';
+
+                if (!snapshot.exists()) {
+                    emptyState.classList.add('show');
+                    lettersList.classList.remove('show');
+                    lettersCount.textContent = '0 letters';
+                    return;
+                }
+
+                const letters = [];
+                snapshot.forEach(child => letters.push({ id: child.key, ...child.val() }));
+                letters.sort((a, b) => new Date(a.openDate) - new Date(b.openDate));
+
+                emptyState.classList.remove('show');
+                lettersCount.textContent = `${letters.length} ${letters.length === 1 ? 'letter' : 'letters'}`;
+
+                const today = new Date().toISOString().split('T')[0];
+
+                letters.forEach(letter => {
+                    const canOpen = new Date(letter.openDate) <= new Date(today);
+                    const card = document.createElement('div');
+                    card.className = `letter-card ${canOpen ? 'unlocked' : 'sealed'}`;
+                    card.innerHTML = `
+                        <div class="letter-header">
+                            <div>
+                                <div class="sealed-date">Sealed: ${formatDate(letter.sealedDate)}</div>
+                                <div class="open-date">Open: ${formatDate(letter.openDate)}</div>
+                            </div>
+                            <div class="letter-status ${canOpen ? 'unlocked' : 'locked'}">
+                                ${canOpen ? '🔓 Unlocked' : '🔒 Locked'}
+                            </div>
+                        </div>
+                        ${canOpen ? `
+                            <div class="letter-content">${escapeHtml(letter.content)}</div>
+                            <button class="btn-delete" onclick="deleteLetter('${letter.id}')">Delete</button>
+                        ` : `
+                            <div class="locked-message">
+                                <span class="emoji">⌛</span>
+                                <strong>Sealed until ${formatDate(letter.openDate)}</strong>
+                                <p>Your message awaits your future self...</p>
+                            </div>
+                        `}
+                    `;
+                    lettersList.appendChild(card);
+                });
+            } catch (error) {
+                lettersList.innerHTML = '<p style="text-align:center;color:var(--error);">Failed to load letters.</p>';
+            }
+        }
+
+        window.deleteLetter = async function(id) {
+            if (!confirm('Delete this letter forever?')) return;
+            try {
+                await remove(ref(db, 'future_letters/' + currentUser.uid + '/' + id));
+                alert('Letter deleted.');
+                loadLetters();
+            } catch (error) {
+                alert('Failed to delete.');
+            }
+        };
+
+        window.logout = async function() {
+            if (confirm('Logout?')) {
+                await signOut(auth);
+                window.location.href = '/login';
+            }
+        };
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Main Auth Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                const name = user.displayName || user.email.split('@')[0];
+                userNameElement.textContent = `👋 ${name}`;
+                userNameElement.style.display = 'inline-block';
+                logoutBtn.style.display = 'inline-block';
+
+                authCheck.style.display = 'none';
+                letterForm.classList.add('show');
+                lettersSection.style.display = 'block';
+
+                setMinDate();
+                loadLetters();
+            } else {
+                window.location.href = '/login';
+            }
+        });
+    </script>
+</body>
+</html>

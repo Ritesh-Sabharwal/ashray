@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal - Ashray</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: rgba(100, 116, 139, 0.1);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #fae8ff 100%);
+            background-attachment: fixed;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 2px solid var(--border);
+            box-shadow: 0 2px 20px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+            background: var(--bg);
+        }
+
+        main {
+            flex: 1;
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            width: 100%;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header h2 {
+            font-size: 2rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        #authCheck {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        #authCheck h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        #authCheck .btn-primary {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: var(--gradient);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        #authCheck .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5);
+        }
+
+        .journal-form {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            animation: fadeInUp 0.6s ease;
+            display: none;
+        }
+
+        .journal-form.show { display: block; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-group input[type="date"],
+        .form-group textarea {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5);
+        }
+
+        .btn-save:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .entries-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .entries-header h3 {
+            font-size: 1.5rem;
+            color: var(--text);
+        }
+
+        .entries-count {
+            background: var(--gradient);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        #entriesList {
+            display: none;
+            gap: 1.5rem;
+            grid-template-columns: 1fr;
+        }
+
+        #entriesList.show {
+            display: grid;
+        }
+
+        .entry-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .entry-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px var(--shadow);
+            border-color: var(--primary);
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .entry-date {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .entry-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-delete {
+            padding: 0.5rem 1rem;
+            background: var(--error);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+
+        .entry-content {
+            color: var(--text-muted);
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--bg-card);
+            border: 2px dashed var(--border);
+            border-radius: 20px;
+            color: var(--text-muted);
+            display: none;
+        }
+
+        .empty-state.show { display: block; }
+
+        .empty-state .emoji {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-top: 2px solid var(--border);
+            color: var(--text-muted);
+            margin-top: auto;
+        }
+
+        .user-name {
+            color: var(--primary);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 50px;
+            border: 2px solid var(--border);
+        }
+
+        .btn-logout {
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(239, 68, 68, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .entries-header, .entry-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Daily Journal</h1>
+            <nav class="nav-links">
+                <span id="userName" class="user-name" style="display: none;"></span>
+                <a href="/">🏡Home</a>
+                <a href="/Leo">💬 Chat</a>
+                <a href="/letters">✉️ Letters</a>
+                <a href="#" id="logoutBtn" class="btn-logout" style="display: none;" onclick="logout()">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="page-header">
+            <h2>Write Your Day</h2>
+            <p>Express yourself freely. Your thoughts are safe here.</p>
+        </div>
+
+        <div id="authCheck">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading your journal...</p>
+            </div>
+        </div>
+
+        <div class="journal-form" id="journalForm">
+            <form id="entryForm">
+                <div class="form-group">
+                    <label for="entryDate">Date</label>
+                    <input type="date" id="entryDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="entryText">Your Thoughts</label>
+                    <textarea id="entryText" placeholder="Pour out your thoughts here... What's on your mind today?" required maxlength="5000"></textarea>
+                </div>
+
+                <button type="submit" class="btn-save" id="saveBtn">Save Entry</button>
+            </form>
+        </div>
+
+        <div id="entriesSection" style="display: none;">
+            <div class="entries-header">
+                <h3>Previous Entries</h3>
+                <span class="entries-count" id="entriesCount">0 entries</span>
+            </div>
+
+            <div class="empty-state" id="emptyState">
+                <span class="emoji">No entries yet</span>
+                <p>Start writing your first journal entry above!</p>
+            </div>
+
+            <div id="entriesList"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Your thoughts are private and secure</p>
+        <p>© 2025 Ashray - Mental Wellness Journal</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getDatabase, ref, push, set, get, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEUwb0GtxLa8P-XnbBUiQrBSWnkTh4zl0",
+            authDomain: "ashray-f0fe1.firebaseapp.com",
+            databaseURL: "https://ashray-f0fe1-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "ashray-f0fe1",
+            storageBucket: "ashray-f0fe1.firebasestorage.app",
+            messagingSenderId: "206959431014",
+            appId: "1:206959431014:web:1358d4921ea354135b0ca7",
+            measurementId: "G-GHRNRVZ9N3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let currentUser = null;
+
+        const authCheck = document.getElementById('authCheck');
+        const journalForm = document.getElementById('journalForm');
+        const entriesSection = document.getElementById('entriesSection');
+        const userNameElement = document.getElementById('userName');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const entryDateInput = document.getElementById('entryDate');
+
+        // Set today's date when form becomes visible
+        function setTodayDate() {
+            if (entryDateInput) entryDateInput.valueAsDate = new Date();
+        }
+
+        document.getElementById('entryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return alert('Please login first!');
+
+            const date = document.getElementById('entryDate').value;
+            const text = document.getElementById('entryText').value.trim();
+            const saveBtn = document.getElementById('saveBtn');
+
+            if (!text) return alert('Please write something!');
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            try {
+                const entriesRef = ref(db, 'journal_entries/' + currentUser.uid);
+                const newEntryRef = push(entriesRef);
+                await set(newEntryRef, {
+                    date: date,
+                    content: text,
+                    createdAt: Date.now()
+                });
+
+                document.getElementById('entryText').value = '';
+                setTodayDate();
+                alert('Entry saved successfully!');
+                loadEntries();
+            } catch (error) {
+                console.error('Error saving entry:', error);
+                alert('Failed to save entry. Please try again.');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Entry';
+            }
+        });
+
+        async function loadEntries() {
+            if (!currentUser) return;
+
+            const entriesList = document.getElementById('entriesList');
+            const emptyState = document.getElementById('emptyState');
+            const entriesCount = document.getElementById('entriesCount');
+
+            entriesList.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading entries...</p></div>';
+            entriesList.classList.add('show');
+
+            try {
+                const snapshot = await get(ref(db, 'journal_entries/' + currentUser.uid));
+                entriesList.innerHTML = '';
+
+                if (!snapshot.exists()) {
+                    emptyState.classList.add('show');
+                    entriesList.classList.remove('show');
+                    entriesCount.textContent = '0 entries';
+                    return;
+                }
+
+                const entries = [];
+                snapshot.forEach(child => {
+                    entries.push({ id: child.key, ...child.val() });
+                });
+
+                entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                emptyState.classList.remove('show');
+                entriesCount.textContent = `${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}`;
+
+                entries.forEach(entry => {
+                    const card = document.createElement('div');
+                    card.className = 'entry-card';
+                    card.innerHTML = `
+                        <div class="entry-header">
+                            <div class="entry-date">${formatDate(entry.date)}</div>
+                            <div class="entry-actions">
+                                <button class="btn-delete" onclick="deleteEntry('${entry.id}')">Delete</button>
+                            </div>
+                        </div>
+                        <div class="entry-content">${escapeHtml(entry.content)}</div>
+                    `;
+                    entriesList.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error('Error loading entries:', error);
+                entriesList.innerHTML = '<p style="text-align:center;color:var(--error);">Failed to load entries.</p>';
+            }
+        }
+
+        window.deleteEntry = async function(entryId) {
+            if (!confirm('Are you sure you want to delete this entry?')) return;
+
+            try {
+                await remove(ref(db, 'journal_entries/' + currentUser.uid + '/' + entryId));
+                alert('Entry deleted!');
+                loadEntries();
+            } catch (error) {
+                alert('Failed to delete entry.');
+            }
+        };
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        window.logout = async function() {
+            if (confirm('Are you sure you want to logout?')) {
+                try {
+                    await signOut(auth);
+                    window.location.href = '/login';
+                } catch (error) {
+                    alert('Logout failed.');
+                }
+            }
+        };
+
+        // Main Auth Listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                const displayName = user.displayName || user.email.split('@')[0];
+                userNameElement.textContent = `👋 ${displayName}`;
+                userNameElement.style.display = 'inline-block';
+                logoutBtn.style.display = 'inline-block';
+
+                authCheck.style.display = 'none';
+                journalForm.classList.add('show');
+                entriesSection.style.display = 'block';
+
+                setTodayDate();
+                loadEntries();
+            } else {
+                window.location.href = '/login';
+            }
+        });
+    </script>
+</body>
+</html>
